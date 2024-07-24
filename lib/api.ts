@@ -1,17 +1,18 @@
 const API_URL = process.env.WORDPRESS_API_URL;
 
-async function fetchAPI(query = "", { variables }: Record<string, any> = {}) {
-  const headers = { "Content-Type": "application/json" };
+async function fetchAPI(query = '', { variables }: Record<string, any> = {}) {
+  const headers = { 'Content-Type': 'application/json' };
 
   if (process.env.WORDPRESS_AUTH_REFRESH_TOKEN) {
-    headers["Authorization"] =
-      `Bearer ${process.env.WORDPRESS_AUTH_REFRESH_TOKEN}`;
+    headers[
+      'Authorization'
+    ] = `Bearer ${process.env.WORDPRESS_AUTH_REFRESH_TOKEN}`;
   }
 
   // WPGraphQL Plugin must be enabled
   const res = await fetch(API_URL, {
     headers,
-    method: "POST",
+    method: 'POST',
     body: JSON.stringify({
       query,
       variables,
@@ -21,12 +22,12 @@ async function fetchAPI(query = "", { variables }: Record<string, any> = {}) {
   const json = await res.json();
   if (json.errors) {
     console.error(json.errors);
-    throw new Error("Failed to fetch API");
+    throw new Error('Failed to fetch API');
   }
   return json.data;
 }
 
-export async function getPreviewPost(id, idType = "DATABASE_ID") {
+export async function getPreviewPost(id, idType = 'DATABASE_ID') {
   const data = await fetchAPI(
     `
     query PreviewPost($id: ID!, $idType: PostIdType!) {
@@ -38,7 +39,7 @@ export async function getPreviewPost(id, idType = "DATABASE_ID") {
     }`,
     {
       variables: { id, idType },
-    },
+    }
   );
   return data.post;
 }
@@ -94,7 +95,7 @@ export async function getAllPostsForHome(preview) {
         onlyEnabled: !preview,
         preview,
       },
-    },
+    }
   );
 
   return data?.posts;
@@ -107,8 +108,8 @@ export async function getPostAndMorePosts(slug, preview, previewData) {
   const isSamePost = isId
     ? Number(slug) === postPreview.id
     : slug === postPreview.slug;
-  const isDraft = isSamePost && postPreview?.status === "draft";
-  const isRevision = isSamePost && postPreview?.status === "publish";
+  const isDraft = isSamePost && postPreview?.status === 'draft';
+  const isRevision = isSamePost && postPreview?.status === 'publish';
   const data = await fetchAPI(
     `
     fragment AuthorFields on User {
@@ -172,7 +173,7 @@ export async function getPostAndMorePosts(slug, preview, previewData) {
           }
         }
         `
-            : ""
+            : ''
         }
       }
       posts(first: 3, where: { orderby: { field: DATE, order: DESC } }) {
@@ -187,9 +188,9 @@ export async function getPostAndMorePosts(slug, preview, previewData) {
     {
       variables: {
         id: isDraft ? postPreview.id : slug,
-        idType: isDraft ? "DATABASE_ID" : "SLUG",
+        idType: isDraft ? 'DATABASE_ID' : 'SLUG',
       },
-    },
+    }
   );
 
   // Draft posts may not have an slug
